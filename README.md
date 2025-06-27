@@ -1,6 +1,7 @@
 # Test Project Python Setup
 
 This repository now contains a minimal Python project.
+See the files in the `docs/` directory for the project plan, task checklist, and setup instructions.
 
 ## Requirements
 
