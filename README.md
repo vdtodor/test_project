@@ -31,3 +31,15 @@ Run the example script:
 ```bash
 python src/main.py
 ```
+
+To compare two CSV files using Polars:
+
+```bash
+python src/csv_compare.py sample_data/file1.csv sample_data/file2.csv comparison_results.csv
+```
+
+To run a quick performance check on large, randomly generated datasets:
+
+```bash
+python src/performance_check.py --rows 1000000 --threads 8
+```
