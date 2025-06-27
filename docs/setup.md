@@ -15,8 +15,9 @@ Follow these steps on a Rocky Linux machine to prepare the environment for the 
 
 2. **Install the required Python version**
    ```bash
-   pyenv install 3.11.4
-   pyenv virtualenv 3.11.4 csv-compare-env
+   # Use the version specified in .python-version
+   pyenv install $(cat .python-version)
+   pyenv virtualenv $(cat .python-version) csv-compare-env
    pyenv local csv-compare-env
    ```
 

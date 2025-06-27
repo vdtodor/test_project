@@ -2,6 +2,8 @@
 
 This document outlines the high‑level plan for building a tool that compares two large CSV files containing more than 20 million rows each. The tool will run on a powerful single machine (330 GB RAM, 24+ cores) using the Python language and the [Polars](https://pola.rs) library.
 
+The [task checklist](tasks.md) provides a detailed breakdown of implementation steps.
+
 ## Goals
 - Ensure the CSV headers match in name (order can differ).
 - Efficiently compare records by `hash_id` and capture differences.
