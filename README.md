@@ -37,3 +37,4 @@ To compare two CSV files using Polars:
 ```bash
 python src/csv_compare.py sample_data/file1.csv sample_data/file2.csv comparison_results.csv
 ```
+

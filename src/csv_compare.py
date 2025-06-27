@@ -15,6 +15,10 @@ def compare_csvs(file1: str, file2: str, output_path: str) -> None:
     df1 = pl.scan_csv(file1)
     df2 = pl.scan_csv(file2)
     df2 = df2.select(columns)  # reorder columns
+
+    df1 = df1.rename({c: f"{c}_file1" for c in columns if c != "hash_id"})
+    df2 = df2.rename({c: f"{c}_file2" for c in columns if c != "hash_id"})
+
     join_df = df1.join(df2, on="hash_id", how="outer", suffixes=("_file1", "_file2"))
 
     mismatches = []
@@ -46,6 +50,7 @@ def compare_csvs(file1: str, file2: str, output_path: str) -> None:
     ).select([
         pl.col("hash_id"),
     ]).with_columns(pl.lit("missing_in_file2").alias("column"))
+
 
     result = pl.concat([mismatch_df, missing_in_file1, missing_in_file2])
     result.collect().write_csv(output_path)
