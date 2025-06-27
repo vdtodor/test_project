@@ -3,9 +3,11 @@
 This document lists concise tasks for building the CSV comparison tool.
 
 ## 1. Environment Setup
+
 - [x] Install `pyenv` and `pyenv-virtualenv`.
 - [x] Install Python using `.python-version`.
 - [x] Create and activate a virtual environment.
+=======
 - [x] Install requirements from `requirements.txt` including `polars`.
 
 ## 2. Input Validation

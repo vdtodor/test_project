@@ -19,7 +19,7 @@ def compare_csvs(file1: str, file2: str, output_path: str) -> None:
     df1 = df1.rename({c: f"{c}_file1" for c in columns if c != "hash_id"})
     df2 = df2.rename({c: f"{c}_file2" for c in columns if c != "hash_id"})
 
-    join_df = df1.join(df2, on="hash_id", how="outer")
+    join_df = df1.join(df2, on="hash_id", how="outer", suffixes=("_file1", "_file2"))
 
     mismatches = []
     for col in columns:
@@ -28,45 +28,29 @@ def compare_csvs(file1: str, file2: str, output_path: str) -> None:
         diff = (
             join_df
             .filter(pl.col(f"{col}_file1") != pl.col(f"{col}_file2"))
-            .select(
-                [
-                    pl.col("hash_id"),
-                    pl.lit(col).alias("column"),
-                    pl.col(f"{col}_file1").cast(pl.Utf8).alias("old_value"),
-                    pl.col(f"{col}_file2").cast(pl.Utf8).alias("new_value"),
-                ]
-            )
+            .select([
+                pl.col("hash_id"),
+                pl.lit(col).alias("column"),
+                pl.col(f"{col}_file1").alias("old_value"),
+                pl.col(f"{col}_file2").alias("new_value"),
+            ])
         )
         mismatches.append(diff)
 
     mismatch_df = pl.concat(mismatches) if mismatches else pl.DataFrame()
 
-    non_hash_columns = [c for c in columns if c != "hash_id"]
-    first_col = non_hash_columns[0]
+    missing_in_file1 = join_df.filter(
+        pl.col(f"{columns[1]}_file1").is_null()
+    ).select([
+        pl.col("hash_id"),
+    ]).with_columns(pl.lit("missing_in_file1").alias("column"))
 
-    missing_in_file1 = (
-        join_df.filter(pl.col(f"{first_col}_file1").is_null())
-        .select(
-            [
-                pl.col("hash_id"),
-                pl.lit("missing_in_file1").alias("column"),
-                pl.lit(None).cast(pl.Utf8).alias("old_value"),
-                pl.lit(None).cast(pl.Utf8).alias("new_value"),
-            ]
-        )
-    )
+    missing_in_file2 = join_df.filter(
+        pl.col(f"{columns[1]}_file2").is_null()
+    ).select([
+        pl.col("hash_id"),
+    ]).with_columns(pl.lit("missing_in_file2").alias("column"))
 
-    missing_in_file2 = (
-        join_df.filter(pl.col(f"{first_col}_file2").is_null())
-        .select(
-            [
-                pl.col("hash_id"),
-                pl.lit("missing_in_file2").alias("column"),
-                pl.lit(None).cast(pl.Utf8).alias("old_value"),
-                pl.lit(None).cast(pl.Utf8).alias("new_value"),
-            ]
-        )
-    )
 
     result = pl.concat([mismatch_df, missing_in_file1, missing_in_file2])
     result.collect().write_csv(output_path)
